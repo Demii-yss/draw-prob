@@ -10,7 +10,7 @@ def draw(total_draw):
         else:
             lose_count = 0
 
-        if (lose_count >= 20) or (i == 5 and lose_count == 5):
+        if (lose_count >= 20) or (i == 5 and lose_count >= 5):
             current_slot = random.choices([0, 1], [0.05, 0.10], k=1)[0]
             lose_count = 0
 
