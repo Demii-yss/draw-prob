@@ -74,13 +74,12 @@ if __name__ == '__main__':
     markov = [[generateProbTrip() for _ in range(3)] for __ in range(3)]
     #
     refine_time = 10000
-    dx = random.random()*0.05
     best_score = 1
     statisfies_count = 0
     count = 0
     #
     while statisfies_count < 1000:
-        count += 1
+        dx = random.random()*0.05/(statisfies_count+1)
         tur_idx = random.randint(0, 26)
         current_score = getScore(simulate(initial_prob, markov))
         pos_dx_score = getScore(simulate(initial_prob, getTurbMkv(markov, tur_idx, dx)))
@@ -94,14 +93,7 @@ if __name__ == '__main__':
             best_score = neg_dx_score
         else:
             best_score = current_score
-
-        if not count % 500:
-            print(best_score)
-            prob = {0: 0, 1: 0, 2: 0}
-            for r in simulate(initial_prob, markov):
-                prob[r] += 1
-            print([prob[0] / (prob[0] + prob[1] + prob[2]), prob[1] / (prob[0] + prob[1] + prob[2]), prob[2] / (
-                        prob[0] + prob[1] + prob[2])])
+      
         if best_score < 0.0001:
             statisfies_count += 1
         else:
