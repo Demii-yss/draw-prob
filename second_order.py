@@ -3,21 +3,21 @@ import numpy as np
 import csv
 
 def simulate(initial_prob, markov):
-    total_slot = 10000+2
+    total_slot = 1000+2
     result = [None]*total_slot
     result[0] = random.choices([2, 1, 0], initial_prob)[0]
     result[1] = random.choices([2, 1, 0], initial_prob)[0]
-    trash_count = 0
+    lose_count = 0
     for i in range(2, total_slot):
         current_slot = random.choices([0, 1, 2], markov[result[i-2]][result[i-1]])[0]
         if current_slot == 2:
-            trash_count += 1
+            lose_count += 1
         else:
-            trash_count = 0
+            lose_count = 0
 
-        if (trash_count >= 20) or (i == 5 and trash_count == 5):
+        if (lose_count >= 20) or (i == pre_draw+4 and lose_count >= 5):
             current_slot = random.choices([0, 1], initial_prob[:2])[0]
-            trash_count = 0
+            lose_count = 0
 
         result[i] = current_slot
 
@@ -66,19 +66,21 @@ def getScore(result):
     count = {0: 0, 1: 0, 2: 0}
     for r in result:
         count[r] += 1
-    return (count[0]/len(result)-0.05)**2 + (count[1]/len(result)-0.1)**2
+    return (count[0]/len(result)-0.05)**2 + (count[1]/len(result)-0.1)**2 + (count[2]/len(result)-0.85)**2
 
 
 if __name__ == '__main__':
-    initial_prob = [1/3, 1/3, 1/3]
+    initial_prob = [0.05, 0.10, 0.85]
     markov = [[generateProbTrip() for _ in range(3)] for __ in range(3)]
     #
     refine_time = 10000
     dx = random.random()*0.05
     best_score = 1
     statisfies_count = 0
+    count = 0
     #
     while statisfies_count < 1000:
+        count += 1
         tur_idx = random.randint(0, 26)
         current_score = getScore(simulate(initial_prob, markov))
         pos_dx_score = getScore(simulate(initial_prob, getTurbMkv(markov, tur_idx, dx)))
@@ -93,7 +95,13 @@ if __name__ == '__main__':
         else:
             best_score = current_score
 
-        print(best_score)
+        if not count % 500:
+            print(best_score)
+            prob = {0: 0, 1: 0, 2: 0}
+            for r in simulate(initial_prob, markov):
+                prob[r] += 1
+            print([prob[0] / (prob[0] + prob[1] + prob[2]), prob[1] / (prob[0] + prob[1] + prob[2]), prob[2] / (
+                        prob[0] + prob[1] + prob[2])])
         if best_score < 0.0001:
             statisfies_count += 1
         else:
