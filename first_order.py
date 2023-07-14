@@ -3,19 +3,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def simulate(initial_prob, markov):
-    total_slot = 10000+100
+    total_draw = 10000
+    pre_draw = 100
+    #
+    total_draw += pre_draw
     current_slot = random.choices([0, 1, 2], initial_prob)[0]
-    result = [None]*total_slot
-    trash_count = 0
-    for i in range(total_slot):
+    result = [None]*total_draw
+    lose_count = 0
+    for i in range(total_draw):
         if current_slot == 0:
-            trash_count += 1
+            lose_count += 1
         else:
-            trash_count = 0
+            lose_count = 0
 
-        if (trash_count >= 20) or (i == 5 and trash_count == 5):
+        if (lose_count >= 20) or (i == pre_draw+4 and lose_count == 5):
             current_slot = random.choices([0, 1], initial_prob[:2])[0]
-            trash_count = 0
+            lose_count = 0
 
         result[i] = current_slot
         current_slot = random.choices([0, 1, 2], markov[current_slot])[0]
@@ -67,44 +70,25 @@ if __name__ == '__main__':
     plt.ion()
     plt.show()
     #
-    initial_prob = [0.8, 0.1, 0.1]
-    markov = [[0.0001, 0.1044, 0.8955], [0.0001, 0.3402, 0.6597], [0.2712, 0.2296, 0.4992]]
+    initial_prob = generateProbTrip()
+    markov = [generateProbTrip() for _ in range(3)]
     #
     refine_time = 100000
     dx = random.random()*0.01
     #
     for refine in range(refine_time):
-        tur_idx = random.randint(0, 9)
+        tur_idx = random.randint(0, 8)
         current_score = getScore(simulate(initial_prob, markov))
-        if tur_idx < 9:
-            turb = 'markov'
-            pos_dx_score = getScore(simulate(initial_prob, getTurbMkv(markov, tur_idx, dx)))
-            neg_dx_score = getScore(simulate(initial_prob, getTurbMkv(markov, tur_idx, -dx)))
-        else:
-            turb = 'init'
-            tur_idx -= 9
-            pos_dx_score = getScore(simulate(getTurbInitProb(initial_prob, tur_idx, dx), markov))
-            neg_dx_score = getScore(simulate(getTurbInitProb(initial_prob, tur_idx, -dx), markov))
+        pos_dx_score = getScore(simulate(initial_prob, getTurbMkv(markov, tur_idx, dx)))
+        neg_dx_score = getScore(simulate(initial_prob, getTurbMkv(markov, tur_idx, -dx)))
 
         if pos_dx_score < neg_dx_score and pos_dx_score < current_score:
-            if turb == 'markov':
-                markov = getTurbMkv(markov, tur_idx, dx)
-            elif turb == 'init':
-                initial_prob = getTurbInitProb(initial_prob, tur_idx, dx)
-            print(pos_dx_score)
+            markov = getTurbMkv(markov, tur_idx, dx)
         elif neg_dx_score < pos_dx_score and neg_dx_score < current_score:
-            if turb == 'markov':
-                markov = getTurbMkv(markov, tur_idx, -dx)
-            elif turb == 'init':
-                initial_prob = getTurbInitProb(initial_prob, tur_idx, -dx)
-            print(neg_dx_score)
-        else:
-            print(current_score)
-            pass
+            markov = getTurbMkv(markov, tur_idx, -dx)
 
         # Plot
         if not refine % 50:
-            # pyautogui.click(1500, 100)
             fig, ax = plt.subplots(1, 1)
             ax.axis('tight')
             ax.axis('off')
