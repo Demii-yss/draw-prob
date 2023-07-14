@@ -63,7 +63,7 @@ def getScore(result):
     count = {0: 0, 1: 0, 2: 0}
     for r in result:
         count[r] += 1
-    return (count[0]/len(result)-0.04)**2 + (count[1]/len(result)-0.09)**2
+    return (count[0]/len(result)-0.05)**2 + (count[1]/len(result)-0.10)**2 + (count[2]/len(result)-0.85)**2
 
 
 if __name__ == '__main__':
