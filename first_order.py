@@ -74,9 +74,9 @@ if __name__ == '__main__':
     markov = [generateProbTrip() for _ in range(3)]
     #
     refine_time = 100000
-    dx = random.random()*0.01
     #
     for refine in range(refine_time):
+        dx = random.random()*0.01
         tur_idx = random.randint(0, 8)
         current_score = getScore(simulate(initial_prob, markov))
         pos_dx_score = getScore(simulate(initial_prob, getTurbMkv(markov, tur_idx, dx)))
