@@ -3,7 +3,8 @@ import numpy as np
 import csv
 
 def simulate(initial_prob, markov):
-    total_slot = 1000+2
+    pre_draw = 100
+    total_slot = 1000+pre_draw
     result = [None]*total_slot
     result[0] = random.choices([2, 1, 0], initial_prob)[0]
     result[1] = random.choices([2, 1, 0], initial_prob)[0]
@@ -21,7 +22,7 @@ def simulate(initial_prob, markov):
 
         result[i] = current_slot
 
-    return result[3:]
+    return result[pre_draw:]
 
 
 def generateProbTrip():
